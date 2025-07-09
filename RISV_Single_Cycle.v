@@ -74,7 +74,7 @@ module RISCV_Single_Cycle(
     );
 
     // ALU input selection
-    assign ALU_in2 = (ALUSrc[0]) ? Imm : ReadData2;
+    assign ALU_in2 = (ALUSrc) ? Imm : ReadData2;;
 
     // ALU
     ALU alu(
