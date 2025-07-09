@@ -6,7 +6,7 @@ module ALU (
     output logic        Zero
 );
 
-    always_comb begin
+    always @(*) begin : alu_logic
         case (ALUOp)
             4'd0:  Result = A + B;                                   // Addition
             4'd1:  Result = A - B;                                   // Subtraction
