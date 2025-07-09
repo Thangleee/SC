@@ -1,25 +1,24 @@
-module ALU_decoder (
-    input  logic [1:0] alu_op,       
-    input  logic [2:0] funct3,        
-    input  logic       funct7b5,      
-    output logic [3:0] alu_control   
+module ALU_decoder(
+    input  [1:0] alu_op,
+    input  [2:0] funct3,
+    input        funct7b5,
+    output logic [3:0] alu_control
 );
-
     always_comb begin
-        unique casez (alu_op)
-            2'b00: alu_control = 4'b0010;                     // Load/Store => ADD
-            2'b01: alu_control = 4'b0110;                     // Branch => SUB
-            2'b10: begin                                      // R-type / I-type
-                unique case (funct3)
-                    3'b000: alu_control = funct7b5 ? 4'b0110 : 4'b0010; // SUB nếu funct7b5=1, ADD nếu funct7b5=0
-                    3'b111: alu_control = 4'b0000;                     // AND
-                    3'b110: alu_control = 4'b0001;                     // OR
-                    3'b010: alu_control = 4'b0111;                     // SLT
-                    default: alu_control = 4'b1111;                    // Không hợp lệ
+        alu_control = 4'b0010; // ADD mặc định (load/store)
+        case (alu_op)
+            2'b00: alu_control = 4'b0010; // ADD
+            2'b01: alu_control = 4'b0110; // SUB (branch)
+            2'b10: begin // R-type/I-type
+                case (funct3)
+                    3'b000: alu_control = (funct7b5 ? 4'b0110 : 4'b0010); // SUB : ADD
+                    3'b111: alu_control = 4'b0000; // AND
+                    3'b110: alu_control = 4'b0001; // OR
+                    3'b010: alu_control = 4'b0111; // SLT
+                    default: alu_control = 4'b0010;
                 endcase
             end
-            default: alu_control = 4'b1111; // Báo lỗi nếu ALUOp không xác định
+            default: alu_control = 4'b0010;
         endcase
     end
-
 endmodule
