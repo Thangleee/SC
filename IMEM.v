@@ -1,24 +1,15 @@
 module IMEM (
-    input  logic [31:0] addr,           
-    output logic [31:0] Instruction    
+    input  [31:0] addr,
+    output [31:0] Instruction
 );
+    reg [31:0] memory [0:255];
+    // Trả về lệnh halt (32'h00000063) nếu truy cập vượt quá 128 lệnh (dành cho SC1), vẫn giữ đủ 256 dòng cho SC2
+    assign Instruction = (addr[11:2] < 128) ? memory[addr[11:2]] : 32'h00000063; // halt = beq x0, x0, 0
 
-    logic [31:0] mem_array [0:255];     
-
-    // Đọc lệnh từ bộ nhớ. Nếu vượt quá 128 dòng => trả về lệnh halt
-    always_comb begin
-        if (addr[11:2] < 128)
-            Instruction = mem_array[addr[11:2]];          // Word-aligned address
-        else
-            Instruction = 32'h00000063;                  // Halt (beq x0, x0, 0)
-    end
-
-    // Nạp dữ liệu từ file khởi tạo
     initial begin
-        if (!$readmemh("./mem/imem2.hex", mem_array)) begin
-            $display("imem2.hex không tồn tại, thử nạp imem.hex...");
-            $readmemh("./mem/imem.hex", mem_array);
-        end
+        if ($fopen("./mem/imem2.hex", "r"))
+            $readmemh("./mem/imem2.hex", memory);
+        else if ($fopen("./mem/imem.hex", "r"))
+            $readmemh("./mem/imem.hex", memory);
     end
-
 endmodule
